@@ -1,32 +1,27 @@
-interface keydown{
-    obj : { key: string };
-}
 
-class Subscription{
-    logkeydown(event: { key: string; }){
-        console.log(`keyborad pressed: ${event.key}`)
-    }
-    alertkeydown(event){
-        alert(`keyborad pressed: ${event.key}`)
-    }
-}
+class EventEmitter{
+    private events: { [event: string]: Function[] } = {};
 
-class Emit extends Subscription{
-    constructor(){
-        super();  
-    }
-    emit(keydown,obg){
-        let listOfFunction = [this.logkeydown, this.alertkeydown];
-        for (const iterator of listOfFunction) {
-            iterator(keydown.obg)            
-        }
-    }
     
-}
-
-
-class EventEmitter extends Emit{
-    unsubscribe(){
-        return
+    public subscribe(keydown:string, func:Function): { unsubscribe: () => void } {
+    if (!this.events[keydown]) {
+      this.events[keydown] = [];
     }
+    this.events[keydown].push(func);
+    return {
+      unsubscribe: () => {
+        this.events[keydown] = this.events[keydown].filter((e) => e !== func);
+      },
+    };
+  }
+
+    public emit(keydown: string, ...args: any[]) {
+    if (this.events[keydown]) {
+      this.events[keydown].forEach((func) => func(...args));
+    }
+  }    
+        
 }
+
+    
+   
